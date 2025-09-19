@@ -2,6 +2,8 @@ services:
   gemini-api:
     build: .
     container_name: gemini-image-generator
+    ports:
+      - "8000:8000"
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - API_TIMEOUT=${API_TIMEOUT:-30}
@@ -19,7 +21,7 @@ services:
       - ./results:/app/results
     env_file:
       - .env
-    restart: "no"
+    restart: unless-stopped
     command: ["python", "api_server.py"]
 
   # Optional: Jupyter notebook for interactive development

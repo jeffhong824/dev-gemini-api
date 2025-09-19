@@ -582,13 +582,21 @@ function createCompositionView(originalImages, resultPath) {
 
 function initializeImageComparison() {
     const sliderContainer = document.querySelector('.slider-image-container');
-    if (!sliderContainer) return;
+    if (!sliderContainer) {
+        console.log('No slider container found');
+        return;
+    }
     
     const handle = sliderContainer.querySelector('.slider-handle');
     const originalImg = sliderContainer.querySelector('.slider-original');
     const resultImg = sliderContainer.querySelector('.slider-result');
     
-    if (!handle || !originalImg || !resultImg) return;
+    if (!handle || !originalImg || !resultImg) {
+        console.log('Missing slider elements:', { handle: !!handle, originalImg: !!originalImg, resultImg: !!resultImg });
+        return;
+    }
+    
+    console.log('Initializing image comparison slider');
     
     let isDragging = false;
     
@@ -646,6 +654,20 @@ function initializeImageComparison() {
         if (originalImg.complete && resultImg.complete) {
             updateDimensions();
         }
+        
+        // Force update after a short delay to ensure images are rendered
+        setTimeout(() => {
+            if (originalImg.naturalWidth > 0 && resultImg.naturalWidth > 0) {
+                updateDimensions();
+            }
+        }, 100);
+        
+        // Additional fallback for slow-loading images
+        setTimeout(() => {
+            if (originalImg.naturalWidth > 0 && resultImg.naturalWidth > 0) {
+                updateDimensions();
+            }
+        }, 500);
     }
     
     // Sync dimensions when images load

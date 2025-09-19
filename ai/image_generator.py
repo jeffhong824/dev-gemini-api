@@ -169,6 +169,29 @@ class ImageGenerator:
                                 break
                     except Exception as e:
                         logger.warning(f"Strategy 3 failed: {str(e)}")
+                
+                # Strategy 4: Force image generation with explicit instruction
+                if result["image_data"] is None:
+                    try:
+                        logger.info("Strategy 4: Force image generation")
+                        force_prompt = f"Generate an image of: {prompt}. Create a visual representation."
+                        force_response = self.client.models.generate_content(
+                            model="gemini-2.5-flash-image-preview",
+                            contents=[force_prompt],
+                        )
+                        
+                        for part in force_response.candidates[0].content.parts:
+                            if part.inline_data is not None:
+                                result["image_data"] = part.inline_data.data
+                                
+                                if save_image:
+                                    filename = output_filename or "generated_text_to_image"
+                                    image_path = self._save_image(part.inline_data.data, filename)
+                                    result["image_path"] = str(image_path)
+                                    logger.info(f"Image generated from force prompt and saved to: {image_path}")
+                                break
+                    except Exception as e:
+                        logger.warning(f"Strategy 4 failed: {str(e)}")
             
             return result
             
