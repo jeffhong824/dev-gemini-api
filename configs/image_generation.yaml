@@ -1,0 +1,75 @@
+# Image Generation Configuration
+# Professional settings for different use cases
+
+# Model Configuration
+model:
+  name: "gemini-2.5-flash-image-preview"
+  max_images_per_request: 1
+  supported_formats: ["PNG", "JPEG", "WEBP"]
+
+# Output Configuration
+output:
+  default_format: "PNG"
+  quality: 95
+  directory: "outputs"
+  filename_prefix: "generated"
+
+# Prompt Templates Configuration
+prompts:
+  # Professional use cases
+  use_cases:
+    logo_design:
+      style: "minimalist"
+      industry: "technology"
+      color_scheme: "blue and white"
+      design_elements: "clean typography and geometric shapes"
+    
+    product_photography:
+      background: "white studio background"
+      lighting: "soft, professional studio"
+      camera_angle: "product-focused angle"
+    
+    interior_design:
+      room_type: "modern living room"
+      style: "contemporary"
+      furniture: "sleek, modern furniture"
+      lighting: "natural and ambient"
+    
+    character_design:
+      character_type: "fantasy warrior"
+      physical_features: "tall, muscular build"
+      clothing: "ornate armor"
+      setting: "mystical forest"
+      art_style: "detailed fantasy art"
+
+# Best Practices Settings
+best_practices:
+  # Language preferences for optimal results
+  preferred_languages: ["EN", "es-MX", "ja-JP", "zh-CN", "hi-IN"]
+  
+  # Prompt guidelines
+  prompt_guidelines:
+    be_specific: true
+    provide_context: true
+    use_step_by_step: true
+    control_camera: true
+    use_semantic_negative: true
+  
+  # Image limitations
+  limitations:
+    max_input_images: 3
+    max_output_images: 1
+    supported_input_types: ["PNG", "JPEG", "WEBP"]
+    watermark: "SynthID"
+
+# API Configuration
+api:
+  timeout: 30
+  retry_attempts: 3
+  rate_limit_delay: 1.0
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/image_generation.log"

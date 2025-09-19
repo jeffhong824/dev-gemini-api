@@ -1,0 +1,53 @@
+services:
+  gemini-api:
+    build: .
+    container_name: gemini-image-generator
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - API_TIMEOUT=${API_TIMEOUT:-30}
+      - API_RETRY_ATTEMPTS=${API_RETRY_ATTEMPTS:-3}
+      - RATE_LIMIT_DELAY=${RATE_LIMIT_DELAY:-1.0}
+      - OUTPUT_DIR=${OUTPUT_DIR:-outputs}
+      - DEFAULT_IMAGE_FORMAT=${DEFAULT_IMAGE_FORMAT:-PNG}
+      - IMAGE_QUALITY=${IMAGE_QUALITY:-95}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./outputs:/app/outputs
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./results:/app/results
+    env_file:
+      - .env
+    restart: "no"
+    command: ["python", "api_server.py"]
+
+  # Optional: Jupyter notebook for interactive development
+  jupyter:
+    build: .
+    container_name: gemini-jupyter
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - ./:/app
+      - ./outputs:/app/outputs
+    ports:
+      - "8888:8888"
+    command: ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+    profiles:
+      - development
+
+  # Optional: API service (if building web API)
+  api:
+    build: .
+    container_name: gemini-api-service
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./outputs:/app/outputs
+      - ./logs:/app/logs
+    command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    profiles:
+      - api

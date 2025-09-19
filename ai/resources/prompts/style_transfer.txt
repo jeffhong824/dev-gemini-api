@@ -1,0 +1,1 @@
+Transform the uploaded image into {target_style} style while maintaining the original composition and main elements. Create a high-quality artistic interpretation that preserves the essential visual elements while applying the new artistic style throughout the entire image.

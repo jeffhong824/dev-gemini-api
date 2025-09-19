@@ -1,0 +1,1 @@
+Create a {context} with the text '{text_content}' in {design_style} style, ensuring the text is legible and well-placed.

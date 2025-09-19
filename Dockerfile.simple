@@ -1,0 +1,19 @@
+# Simple test Dockerfile
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy only essential files
+COPY gemini_api.py .
+COPY ai/ ./ai/
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create directories
+RUN mkdir -p outputs assets/images
+
+# Test command
+CMD ["python", "gemini_api.py", "--help"]

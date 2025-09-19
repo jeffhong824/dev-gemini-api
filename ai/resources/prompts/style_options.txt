@@ -1,0 +1,21 @@
+# Available Style Options for Image Generation
+
+## Predefined Styles
+- photorealistic: High-quality realistic photography style
+- artistic: Creative artistic interpretation
+- cartoon: Cartoon/animation style
+- anime: Japanese anime/manga style
+- oil_painting: Traditional oil painting style
+- watercolor: Watercolor painting style
+- sketch: Pencil/charcoal sketch style
+- digital_art: Digital art/illustration style
+
+## Custom Style Examples
+- "vintage sepia tone with film grain"
+- "cyberpunk neon aesthetic"
+- "minimalist flat design"
+- "vintage poster art style"
+- "high contrast black and white"
+- "soft pastel colors"
+- "dramatic chiaroscuro lighting"
+- "impressionist brushstrokes"

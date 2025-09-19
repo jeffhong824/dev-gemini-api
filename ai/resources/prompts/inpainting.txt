@@ -1,0 +1,1 @@
+Take the {base_image_description} and replace the {mask_area} with {replacement_content}{style_consistency}.

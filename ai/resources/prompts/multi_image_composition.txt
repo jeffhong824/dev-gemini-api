@@ -1,0 +1,1 @@
+Create a new image by combining the uploaded images to achieve: {composition_goal}. Use {blending_style} blending technique to seamlessly merge the elements. Ensure the final composition looks natural and well-integrated, maintaining the quality and style of the original images while creating a cohesive new scene.
