@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Image Generation API - Frontend</title>
+    <title>Homee AI Image Generation API - Frontend</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-magic"></i> Gemini Image Generation API</h1>
-            <p>Professional image generation service using Google Gemini API</p>
+            <h1><i class="fas fa-magic"></i> Homee AI Image Generation API</h1>
+            <p>Professional image generation service</p>
         </header>
 
         <nav class="tabs">
@@ -45,57 +45,6 @@
                         <textarea id="generatePrompt" name="prompt" placeholder="Describe the image you want to generate..." required></textarea>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="generateStyle">Style</label>
-                            <select id="generateStyle" name="style">
-                                <option value="photorealistic">Photorealistic</option>
-                                <option value="artistic">Artistic</option>
-                                <option value="cartoon">Cartoon</option>
-                                <option value="oil_painting">Oil Painting</option>
-                                <option value="watercolor">Watercolor</option>
-                                <option value="sketch">Sketch</option>
-                                <option value="custom">Custom</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group" id="customStyleGroup" style="display: none;">
-                            <label for="customStyle">Custom Style</label>
-                            <input type="text" id="customStyle" name="custom_style" placeholder="Describe your custom style...">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="context">Context</label>
-                            <input type="text" id="context" name="context" placeholder="e.g., product photography, interior design">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="angle">Camera Angle</label>
-                            <select id="angle" name="angle">
-                                <option value="">Select angle</option>
-                                <option value="wide_angle">Wide Angle</option>
-                                <option value="close_up">Close Up</option>
-                                <option value="low_angle">Low Angle</option>
-                                <option value="high_angle">High Angle</option>
-                                <option value="bird_eye">Bird's Eye</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="lighting">Lighting</label>
-                            <input type="text" id="lighting" name="lighting" placeholder="e.g., soft natural lighting, dramatic shadows">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="generateComposition">Composition</label>
-                            <input type="text" id="generateComposition" name="composition" placeholder="e.g., rule of thirds, centered">
-                        </div>
-                    </div>
-                    
                     <div class="form-group">
                         <label for="outputFilename">Output Filename</label>
                         <input type="text" id="outputFilename" name="output_filename" placeholder="generated" value="generated">
@@ -123,27 +72,9 @@
                     
                     <div class="form-group">
                         <label for="editPrompt">Edit Prompt *</label>
-                        <textarea id="editPrompt" name="prompt" placeholder="Describe what you want to change..." required></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editStyle">Target Style</label>
-                            <select id="editStyle" name="style">
-                                <option value="">Keep original style</option>
-                                <option value="photorealistic">Photorealistic</option>
-                                <option value="artistic">Artistic</option>
-                                <option value="cartoon">Cartoon</option>
-                                <option value="oil_painting">Oil Painting</option>
-                                <option value="watercolor">Watercolor</option>
-                                <option value="sketch">Sketch</option>
-                                <option value="custom">Custom</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group" id="editCustomStyleGroup" style="display: none;">
-                            <label for="editCustomStyle">Custom Style</label>
-                            <input type="text" id="editCustomStyle" name="custom_style" placeholder="Describe your custom style...">
+                        <textarea id="editPrompt" name="prompt" placeholder="Describe what you want to change... (e.g., change the sofa to yellow, add a window, remove the table)" required></textarea>
+                        <div class="form-hint">
+                            <p>Examples: "把沙發換成黃色", "添加一扇窗戶", "移除桌子", "在牆上掛一幅畫"</p>
                         </div>
                     </div>
                     
@@ -215,12 +146,18 @@
                         <div class="form-group">
                             <label for="targetStyle">Target Style *</label>
                             <select id="targetStyle" name="target_style" required>
-                                <option value="photorealistic">Photorealistic</option>
-                                <option value="artistic">Artistic</option>
-                                <option value="cartoon">Cartoon</option>
-                                <option value="oil_painting">Oil Painting</option>
-                                <option value="watercolor">Watercolor</option>
-                                <option value="sketch">Sketch</option>
+                                <option value="modern">Modern</option>
+                                <option value="minimalist">Minimalist</option>
+                                <option value="neoclassical">Neoclassical</option>
+                                <option value="industrial_loft">Industrial Loft</option>
+                                <option value="coastal">Coastal</option>
+                                <option value="country">Country</option>
+                                <option value="scandinavian">Scandinavian</option>
+                                <option value="japanese">Japanese</option>
+                                <option value="japandi">Japandi</option>
+                                <option value="modern_american">Modern American</option>
+                                <option value="mid_century_modern">Mid Century Modern</option>
+                                <option value="modern_classic">Modern Classic</option>
                                 <option value="custom">Custom</option>
                             </select>
                         </div>
@@ -261,21 +198,9 @@
                         <textarea id="compositionGoal" name="goal" placeholder="Describe how you want to combine the images..." required></textarea>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="blendingStyle">Blending Style</label>
-                            <select id="blendingStyle" name="blending">
-                                <option value="seamless">Seamless</option>
-                                <option value="artistic">Artistic</option>
-                                <option value="collage">Collage</option>
-                                <option value="overlay">Overlay</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="compositionOutputFilename">Output Filename</label>
-                            <input type="text" id="compositionOutputFilename" name="output_filename" placeholder="composed" value="composed">
-                        </div>
+                    <div class="form-group">
+                        <label for="compositionOutputFilename">Output Filename</label>
+                        <input type="text" id="compositionOutputFilename" name="output_filename" placeholder="composed" value="composed">
                     </div>
                     
                     <button type="submit" class="btn btn-primary">

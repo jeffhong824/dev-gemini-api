@@ -1,10 +1,47 @@
 // Main application JavaScript
 document.addEventListener('DOMContentLoaded', function() {
+    // Clear URL parameters to prevent auto-execution
+    clearURLParameters();
+    
+    // Prevent all forms from auto-submitting
+    preventAutoSubmit();
+    
     // Initialize the application
     initTabs();
     initForms();
     initTemplateFields();
 });
+
+// Clear URL parameters to prevent auto-execution
+function clearURLParameters() {
+    // Force clear URL parameters immediately
+    if (window.location.search) {
+        // Replace the current URL without reloading the page
+        window.history.replaceState({}, document.title, window.location.pathname);
+        console.log('URL parameters cleared');
+    }
+}
+
+// Prevent all forms from auto-submitting
+function preventAutoSubmit() {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        // Add event listener to prevent default submission
+        form.addEventListener('submit', function(e) {
+            // Only prevent if this is not handled by our custom handlers
+            if (!e.target.hasAttribute('data-handled')) {
+                e.preventDefault();
+                console.log('Form auto-submission prevented for:', e.target.id);
+                return false;
+            }
+        });
+        
+        // Only reset form fields if they have URL parameters (to prevent auto-filling)
+        if (window.location.search) {
+            form.reset();
+        }
+    });
+}
 
 // Tab functionality
 function initTabs() {
@@ -32,26 +69,12 @@ function initForms() {
     const generateForm = document.getElementById('generateForm');
     if (generateForm) {
         generateForm.addEventListener('submit', handleGenerateSubmit);
-        
-        // Handle style change for custom style field
-        const styleSelect = document.getElementById('generateStyle');
-        const customStyleGroup = document.getElementById('customStyleGroup');
-        styleSelect.addEventListener('change', () => {
-            customStyleGroup.style.display = styleSelect.value === 'custom' ? 'block' : 'none';
-        });
     }
 
     // Edit form
     const editForm = document.getElementById('editForm');
     if (editForm) {
         editForm.addEventListener('submit', handleEditSubmit);
-        
-        // Handle style change for custom style field
-        const styleSelect = document.getElementById('editStyle');
-        const customStyleGroup = document.getElementById('editCustomStyleGroup');
-        styleSelect.addEventListener('change', () => {
-            customStyleGroup.style.display = styleSelect.value === 'custom' ? 'block' : 'none';
-        });
     }
 
     // Clean form
@@ -280,6 +303,12 @@ function updateStepButtons() {
 // Form submission handlers
 async function handleGenerateSubmit(e) {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Mark form as handled
+    e.target.setAttribute('data-handled', 'true');
+    console.log('Generate form submitted');
+    
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     
@@ -303,6 +332,12 @@ async function handleGenerateSubmit(e) {
 
 async function handleEditSubmit(e) {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Mark form as handled
+    e.target.setAttribute('data-handled', 'true');
+    console.log('Edit form submitted');
+    
     const formData = new FormData(e.target);
     
     // Store original image path for comparison
@@ -329,6 +364,12 @@ async function handleEditSubmit(e) {
 
 async function handleCleanSubmit(e) {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Mark form as handled
+    e.target.setAttribute('data-handled', 'true');
+    console.log('Clean form submitted');
+    
     const formData = new FormData(e.target);
     
     // Store original image path for comparison
@@ -355,6 +396,12 @@ async function handleCleanSubmit(e) {
 
 async function handleStyleSubmit(e) {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Mark form as handled
+    e.target.setAttribute('data-handled', 'true');
+    console.log('Style form submitted');
+    
     const formData = new FormData(e.target);
     
     // Store original image path for comparison
@@ -367,12 +414,15 @@ async function handleStyleSubmit(e) {
     showLoading('styleResult');
     
     try {
+        console.log('Sending request to /api/style');
         const response = await fetch('/api/style', {
             method: 'POST',
             body: formData
         });
         
+        console.log('Response received:', response.status);
         const result = await response.json();
+        console.log('Result:', result);
         showResult('styleResult', result);
     } catch (error) {
         showError('styleResult', error.message);
@@ -381,6 +431,12 @@ async function handleStyleSubmit(e) {
 
 async function handleCompositionSubmit(e) {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Mark form as handled
+    e.target.setAttribute('data-handled', 'true');
+    console.log('Composition form submitted');
+    
     const formData = new FormData(e.target);
     
     // Store original images for comparison
@@ -410,6 +466,12 @@ async function handleCompositionSubmit(e) {
 
 async function handleTemplatesSubmit(e) {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Mark form as handled
+    e.target.setAttribute('data-handled', 'true');
+    console.log('Templates form submitted');
+    
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     
@@ -448,6 +510,11 @@ function showLoading(resultId) {
 function showResult(resultId, result) {
     const resultDiv = document.getElementById(resultId);
     
+    // Clear previous content and reset display
+    resultDiv.innerHTML = '';
+    resultDiv.className = 'result';
+    resultDiv.style.display = 'block';
+    
     if (result.success) {
         let html = `<div class="result success">
             <h3><i class="fas fa-check-circle"></i> ${result.message}</h3>`;
@@ -472,7 +539,8 @@ function showResult(resultId, result) {
                     html += createCompositionView(window.originalImages, imagePath);
                 } else {
                     // Show single image for generate operations
-                    html += `<img src="/outputs/${imagePath}" alt="Generated image" class="result-image">`;
+                    const timestamp = new Date().getTime();
+                    html += `<img src="/outputs/${imagePath}?t=${timestamp}" alt="Generated image" class="result-image">`;
                 }
                 
                 html += `<a href="/outputs/${imagePath}" class="download-link" download>
@@ -495,7 +563,10 @@ function showResult(resultId, result) {
         resultDiv.innerHTML = html;
         
         // Initialize image comparison slider if it exists
-        initializeImageComparison();
+        // Use setTimeout to ensure DOM is fully rendered
+        setTimeout(() => {
+            initializeImageComparison();
+        }, 100);
     } else {
         showError(resultId, result.error || 'Unknown error occurred');
     }
@@ -505,6 +576,10 @@ function createImageComparisonView(originalPath, newPath) {
     // Handle both temporary URLs and server paths
     const originalSrc = originalPath.startsWith('blob:') ? originalPath : `/outputs/${originalPath}`;
     const newSrc = newPath.startsWith('outputs/') ? `/outputs/${newPath}` : `/outputs/${newPath}`;
+    
+    // Add timestamp to prevent caching
+    const timestamp = new Date().getTime();
+    const newSrcWithTimestamp = newSrc.includes('?') ? `${newSrc}&t=${timestamp}` : `${newSrc}?t=${timestamp}`;
 
     return `
         <div class="image-comparison-container">
@@ -518,7 +593,7 @@ function createImageComparisonView(originalPath, newPath) {
                 </div>
                 <div class="image-container">
                     <h5>Result</h5>
-                    <img src="${newSrc}" alt="Result image" class="comparison-image">
+                    <img src="${newSrcWithTimestamp}" alt="Result image" class="comparison-image">
                 </div>
             </div>
 
@@ -528,7 +603,7 @@ function createImageComparisonView(originalPath, newPath) {
                 <div class="slider-container">
                     <div class="slider-image-container">
                         <img src="${originalSrc}" alt="Original" class="slider-original">
-                        <img src="${newSrc}" alt="Result" class="slider-result">
+                        <img src="${newSrcWithTimestamp}" alt="Result" class="slider-result">
                         <div class="slider-handle">
                             <div class="slider-line"></div>
                             <div class="slider-button">
@@ -545,6 +620,10 @@ function createImageComparisonView(originalPath, newPath) {
 function createCompositionView(originalImages, resultPath) {
     // Handle server path
     const resultSrc = resultPath.startsWith('outputs/') ? `/outputs/${resultPath}` : `/outputs/${resultPath}`;
+    
+    // Add timestamp to prevent caching
+    const timestamp = new Date().getTime();
+    const resultSrcWithTimestamp = resultSrc.includes('?') ? `${resultSrc}&t=${timestamp}` : `${resultSrc}?t=${timestamp}`;
     
     // Create HTML for original images
     let originalImagesHtml = '';
@@ -573,7 +652,7 @@ function createCompositionView(originalImages, resultPath) {
             <div class="result-section">
                 <h5>Composed Result</h5>
                 <div class="image-container">
-                    <img src="${resultSrc}" alt="Composed image" class="result-image">
+                    <img src="${resultSrcWithTimestamp}" alt="Composed image" class="result-image">
                 </div>
             </div>
         </div>
@@ -581,22 +660,30 @@ function createCompositionView(originalImages, resultPath) {
 }
 
 function initializeImageComparison() {
-    const sliderContainer = document.querySelector('.slider-image-container');
-    if (!sliderContainer) {
-        console.log('No slider container found');
+    const sliderContainers = document.querySelectorAll('.slider-image-container');
+    if (sliderContainers.length === 0) {
+        console.log('No slider containers found');
         return;
     }
     
-    const handle = sliderContainer.querySelector('.slider-handle');
-    const originalImg = sliderContainer.querySelector('.slider-original');
-    const resultImg = sliderContainer.querySelector('.slider-result');
+    console.log(`Found ${sliderContainers.length} slider containers`);
     
-    if (!handle || !originalImg || !resultImg) {
-        console.log('Missing slider elements:', { handle: !!handle, originalImg: !!originalImg, resultImg: !!resultImg });
-        return;
-    }
-    
-    console.log('Initializing image comparison slider');
+    sliderContainers.forEach((sliderContainer, index) => {
+        const handle = sliderContainer.querySelector('.slider-handle');
+        const originalImg = sliderContainer.querySelector('.slider-original');
+        const resultImg = sliderContainer.querySelector('.slider-result');
+        
+        if (!handle || !originalImg || !resultImg) {
+            console.log(`Missing slider elements in container ${index}:`, { handle: !!handle, originalImg: !!originalImg, resultImg: !!resultImg });
+            return;
+        }
+        
+        console.log(`Initializing image comparison slider ${index}`);
+        initializeSingleSlider(sliderContainer, handle, originalImg, resultImg);
+    });
+}
+
+function initializeSingleSlider(sliderContainer, handle, originalImg, resultImg) {
     
     let isDragging = false;
     
@@ -673,8 +760,10 @@ function initializeImageComparison() {
     // Sync dimensions when images load
     syncImageDimensions();
     
-    // Set initial position
-    updateSliderPosition(50);
+    // Set initial position after a delay to ensure dimensions are set
+    setTimeout(() => {
+        updateSliderPosition(50);
+    }, 200);
     
     // Mouse events for dragging
     handle.addEventListener('mousedown', startDrag);

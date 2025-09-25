@@ -46,18 +46,10 @@ prompt_templates = PromptTemplates()
 # Pydantic models for request/response
 class GenerateRequest(BaseModel):
     prompt: str
-    style: str = "photorealistic"
-    custom_style: Optional[str] = None
-    context: Optional[str] = None
-    angle: Optional[str] = None
-    lighting: Optional[str] = None
-    composition: Optional[str] = None
     output_filename: Optional[str] = None
 
 class EditRequest(BaseModel):
     prompt: str
-    style: Optional[str] = None
-    custom_style: Optional[str] = None
     output_filename: Optional[str] = None
 
 class CleanRequest(BaseModel):
@@ -115,35 +107,8 @@ async def health_check():
 async def generate_image(request: GenerateRequest):
     """Generate image from text description"""
     try:
-        # Convert style string to enum
-        style_enum = ImageStyle.PHOTOREALISTIC
-        if request.style == "custom" and request.custom_style:
-            style_enum = ImageStyle.CUSTOM
-        elif request.style in [s.value for s in ImageStyle]:
-            style_enum = ImageStyle(request.style)
-        
-        # Convert angle string to enum
-        angle_enum = None
-        if request.angle and request.angle in [a.value for a in CameraAngle]:
-            angle_enum = CameraAngle(request.angle)
-        
-        # Generate image using template if style is not photorealistic or has additional parameters
-        if (request.style != "photorealistic" or request.context or request.angle or 
-            request.lighting or request.composition):
-            # Use template-based generation
-            prompt = prompt_templates.text_to_image(
-                subject=request.prompt,
-                style=style_enum,
-                context=request.context,
-                camera_angle=angle_enum,
-                lighting=request.lighting,
-                composition=request.composition
-            )
-        else:
-            prompt = request.prompt
-        
         result = image_generator.generate_text_to_image(
-            prompt=prompt,
+            prompt=request.prompt,
             output_filename=request.output_filename or "generated"
         )
         
@@ -267,16 +232,27 @@ async def transfer_style(
             content = await file.read()
             buffer.write(content)
         
-        # Convert style string to enum
-        style_enum = ImageStyle.PHOTOREALISTIC
-        if target_style == "custom" and custom_style:
-            style_enum = ImageStyle.CUSTOM
-        elif target_style in [s.value for s in ImageStyle]:
-            style_enum = ImageStyle(target_style)
+        # Style mapping for the 12 predefined styles
+        style_mapping = {
+            "modern": "modern style, clean, neutral color, minimalistic furniture, marble tile floors, abundant natural light, sleek materials, bright color schemes",
+            "minimalist": "minimalist style, monochromatic and cold tones, large flat floors, white walls, clean and uncluttered aesthetics, low-profile furniture, natural light, calming and spacious environment",
+            "neoclassical": "neoclassical style, bright and elegant tone, marble floors, white paneled walls, luxurious and sophisticated materials, soft neutral-toned furniture, soft and warm lighting",
+            "industrial_loft": "industrial loft, reclaimed wood, walnut floors, exposed structural elements like pipes and beams, concrete or brick walls, vintage and repurposed furniture, leather and metal accents",
+            "coastal": "coastal style, weathered wood, rattan, jute furniture, natural light, cotton linen, driftwood",
+            "country": "country style, natural materials like wood, and brick walls, delicate grooved details, soft pastel painted wood, and ornate metal handles, floral and plaid patterns furniture, warm tones, soft natural lighting",
+            "scandinavian": "scandinavian style, crisp clean lines, cozy furniture, oak floors, soft natural light, warm natural materials, neutral palettes, airy and tranquil atmosphere",
+            "japanese": "japanese style, wood bamboo stone flooring furniture, clean line, tatami, low wooden table, shoji door, bonsai, bamboo, paper lanterns, natural material pendant lights",
+            "japandi": "japandi style, japanese minimalism, scandinavian coziness, natural wood, clean line, tatami, shoji, japanese aesthetic, warm",
+            "modern_american": "modern american style, wood, metal, glass, timeless furniture, pendant lights, floor lamp, contemporary",
+            "mid_century_modern": "mid century modern interior, warm wooden tones and rich walnut finishes, retro aesthetic furniture, a color palette with muted earth tones and pops of color",
+            "modern_classic": "modern classic style, metallic accent, crown molding, wainscoting, rich fabrics, velvet, silk, linen"
+        }
         
-        # Transfer style using template-based generation
+        # Get style text
         if target_style == "custom" and custom_style:
             style_text = custom_style
+        elif target_style in style_mapping:
+            style_text = style_mapping[target_style]
         else:
             style_text = target_style.replace("_", " ").title()
         
@@ -314,7 +290,6 @@ async def transfer_style(
 async def compose_images(
     files: List[UploadFile] = File(...),
     goal: str = Form(...),
-    blending: str = Form("seamless"),
     output_filename: Optional[str] = Form(None)
 ):
     """Compose multiple images into a new scene"""
@@ -332,7 +307,7 @@ async def compose_images(
         prompt = prompt_templates.multi_image_composition(
             images=["the uploaded images"],
             composition_goal=goal,
-            blending_style=blending
+            blending_style="seamless"
         )
         
         # Use the new multi-image composition method
